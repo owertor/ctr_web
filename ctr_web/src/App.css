@@ -8,10 +8,11 @@
 h1 {
   text-align: center;
   color: #333;
+  margin-bottom: 30px;
 }
 
 h2 {
-  color: #555;
+  color: #444;
   margin-bottom: 15px;
 }
 
@@ -19,8 +20,8 @@ h2 {
   margin-bottom: 30px;
   padding: 20px;
   border: 1px solid #ddd;
-  border-radius: 5px;
-  background-color: #f9f9f9;
+  border-radius: 8px;
+  background-color: #f8f9fa;
 }
 
 .form-section form {
@@ -30,20 +31,27 @@ h2 {
 }
 
 .form-section input {
-  padding: 8px;
+  padding: 10px;
   border: 1px solid #ccc;
-  border-radius: 3px;
+  border-radius: 4px;
   flex: 1;
   min-width: 150px;
+  font-size: 14px;
+}
+
+.form-section input:focus {
+  outline: none;
+  border-color: #007bff;
 }
 
 .form-section button {
-  padding: 8px 15px;
+  padding: 10px 20px;
   background-color: #007bff;
   color: white;
   border: none;
-  border-radius: 3px;
+  border-radius: 4px;
   cursor: pointer;
+  font-size: 14px;
 }
 
 .form-section button:hover {
@@ -58,42 +66,153 @@ h2 {
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
+  background: white;
+}
+
+.entities-table th {
+  background-color: #f1f1f1;
+  font-weight: bold;
+  text-align: left;
 }
 
 .entities-table th,
 .entities-table td {
   border: 1px solid #ddd;
-  padding: 10px;
-  text-align: left;
-}
-
-.entities-table th {
-  background-color: #f2f2f2;
-  font-weight: bold;
-}
-
-.entities-table tr:nth-child(even) {
-  background-color: #f9f9f9;
+  padding: 12px;
 }
 
 .entities-table tr:hover {
   background-color: #f5f5f5;
 }
 
+.edit-btn {
+  padding: 6px 12px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  margin-right: 5px;
+  font-size: 13px;
+}
+
+.edit-btn:hover {
+  background-color: #218838;
+}
+
 .delete-btn {
-  padding: 5px 10px;
+  padding: 6px 12px;
   background-color: #dc3545;
   color: white;
   border: none;
   border-radius: 3px;
   cursor: pointer;
+  font-size: 13px;
 }
 
 .delete-btn:hover {
   background-color: #c82333;
 }
 
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #666;
+}
+
+.close-btn:hover {
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #555;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.update-btn {
+  padding: 8px 16px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.update-btn:hover {
+  background-color: #218838;
+}
+
+.cancel-btn {
+  padding: 8px 16px;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cancel-btn:hover {
+  background-color: #545b62;
+}
+
 @media (max-width: 768px) {
+  .App {
+    padding: 10px;
+  }
+  
   .form-section form {
     flex-direction: column;
   }
@@ -108,6 +227,11 @@ h2 {
   
   .entities-table th,
   .entities-table td {
-    padding: 8px 5px;
+    padding: 8px;
+  }
+  
+  .modal-content {
+    width: 95%;
+    margin: 10px;
   }
 }

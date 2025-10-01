@@ -21,11 +21,19 @@ const EntityAPI = {
   },
   
   add: function(entity) {
-    // Генерируем новый ID
     const newId = this.entities.length > 0 ? Math.max(...this.entities.map(e => e.id)) + 1 : 1;
     const newEntity = { ...entity, id: newId };
     this.entities.push(newEntity);
     return newEntity;
+  },
+  
+  edit: function(id, updatedEntity) {
+    const index = this.entities.findIndex(e => e.id === id);
+    if (index !== -1) {
+      this.entities[index] = { ...this.entities[index], ...updatedEntity };
+      return this.entities[index];
+    }
+    return null;
   }
 };
 

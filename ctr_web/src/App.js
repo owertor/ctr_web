@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Table from './Table';
 import Form from './Form';
+import EditModal from './EditModal';
 import EntityAPI from './api/service';
 import './App.css';
 
@@ -11,7 +12,8 @@ function App() {
     lastName: '',
     email: ''
   });
-
+  const [editingEntity, setEditingEntity] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false); 
   useEffect(() => {
     setEntities(EntityAPI.all());
   }, []);
@@ -34,13 +36,32 @@ function App() {
 
     EntityAPI.add(formData);
     setEntities(EntityAPI.all());
-    
     setFormData({ firstName: '', lastName: '', email: '' });
   };
 
   const handleDelete = (id) => {
     EntityAPI.delete(id);
     setEntities(EntityAPI.all());
+  };
+
+  const handleEdit = (id) => {
+    const entityToEdit = EntityAPI.get(id);
+    if (entityToEdit) {
+      setEditingEntity(entityToEdit);
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleUpdate = (updatedEntity) => {
+    EntityAPI.edit(editingEntity.id, updatedEntity);
+    setEntities(EntityAPI.all());
+    setIsModalOpen(false);
+    setEditingEntity(null);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditingEntity(null);
   };
 
   return (
@@ -58,9 +79,21 @@ function App() {
         {entities.length === 0 ? (
           <p>No entities found</p>
         ) : (
-          <Table entities={entities} onDelete={handleDelete} />
+          <Table 
+            entities={entities} 
+            onDelete={handleDelete} 
+            onEdit={handleEdit}
+          />
         )}
       </div>
+
+      {isModalOpen && (
+        <EditModal
+          entity={editingEntity}
+          onUpdate={handleUpdate}
+          onClose={handleCloseModal}
+        />
+      )}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import React from "react";
 
-const Table = ({ entities, onDelete }) => {
+const Table = ({ entities, onDelete, onEdit }) => {
   return (
     <table className="entities-table">
       <thead>
@@ -9,7 +9,7 @@ const Table = ({ entities, onDelete }) => {
           <th>First Name</th>
           <th>Last Name</th>
           <th>Email</th>
-          <th>Action</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -21,6 +21,12 @@ const Table = ({ entities, onDelete }) => {
               <td>{entity.lastName}</td>
               <td>{entity.email}</td>
               <td>
+                <button 
+                  onClick={() => onEdit(entity.id)}
+                  className="edit-btn"
+                >
+                  Edit
+                </button>
                 <button 
                   onClick={() => onDelete(entity.id)}
                   className="delete-btn"
