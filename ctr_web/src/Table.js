@@ -1,44 +1,50 @@
 import React from "react";
 
 const Table = ({ entities, onDelete, onEdit }) => {
+  if (entities.length === 0) {
+    return null;
+  }
+
   return (
-    <table className="entities-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>First Name</th>
-          <th>Last Name</th>
-          <th>Email</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {entities.map((entity) => {
-          return (
-            <tr key={entity.id}>
-              <td>{entity.id}</td>
-              <td>{entity.firstName}</td>
-              <td>{entity.lastName}</td>
-              <td>{entity.email}</td>
-              <td>
-                <button 
-                  onClick={() => onEdit(entity.id)}
-                  className="edit-btn"
-                >
-                  Edit
-                </button>
-                <button 
-                  onClick={() => onDelete(entity.id)}
-                  className="delete-btn"
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
+    <div className="table-container">
+      <table className="entities-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {entities.map((entity) => {
+            return (
+              <tr key={entity.id}>
+                <td>{entity.id}</td>
+                <td>{entity.firstName}</td>
+                <td>{entity.lastName}</td>
+                <td>{entity.email}</td>
+                <td>
+                  <button 
+                    onClick={() => onEdit(entity.id)}
+                    className="edit-btn"
+                  >
+                    Edit
+                  </button>
+                  <button 
+                    onClick={() => onDelete(entity.id)}
+                    className="delete-btn"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
   );
 };
 

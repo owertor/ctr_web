@@ -2,21 +2,41 @@ import React, { useState, useEffect } from 'react';
 import Table from './Table';
 import Form from './Form';
 import EditModal from './EditModal';
+import SearchBar from './SearchBar';
 import EntityAPI from './api/service';
 import './App.css';
 
 function App() {
   const [entities, setEntities] = useState([]);
+  const [filteredEntities, setFilteredEntities] = useState([]);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: ''
   });
   const [editingEntity, setEditingEntity] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false); 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
   useEffect(() => {
-    setEntities(EntityAPI.all());
+    const allEntities = EntityAPI.all();
+    setEntities(allEntities);
+    setFilteredEntities(allEntities);
   }, []);
+
+  useEffect(() => {
+    if (searchTerm.trim() === '') {
+      setFilteredEntities(entities);
+    } else {
+      const filtered = entities.filter(entity =>
+        entity.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        entity.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        entity.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        entity.id.toString().includes(searchTerm)
+      );
+      setFilteredEntities(filtered);
+    }
+  }, [searchTerm, entities]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -35,13 +55,15 @@ function App() {
     }
 
     EntityAPI.add(formData);
-    setEntities(EntityAPI.all());
+    const allEntities = EntityAPI.all();
+    setEntities(allEntities);
     setFormData({ firstName: '', lastName: '', email: '' });
   };
 
   const handleDelete = (id) => {
     EntityAPI.delete(id);
-    setEntities(EntityAPI.all());
+    const allEntities = EntityAPI.all();
+    setEntities(allEntities);
   };
 
   const handleEdit = (id) => {
@@ -54,7 +76,8 @@ function App() {
 
   const handleUpdate = (updatedEntity) => {
     EntityAPI.edit(editingEntity.id, updatedEntity);
-    setEntities(EntityAPI.all());
+    const allEntities = EntityAPI.all();
+    setEntities(allEntities);
     setIsModalOpen(false);
     setEditingEntity(null);
   };
@@ -64,36 +87,63 @@ function App() {
     setEditingEntity(null);
   };
 
+  const handleSearch = (term) => {
+    setSearchTerm(term);
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm('');
+  };
+
   return (
     <div className="App">
-      <h1>Entity Management</h1>
-      
-      <Form 
-        formData={formData}
-        onSubmit={handleSubmit}
-        onInputChange={handleInputChange}
-      />
+      <div className="app-content">
+        <h1>Entity Management</h1>
+        
+        <Form 
+          formData={formData}
+          onSubmit={handleSubmit}
+          onInputChange={handleInputChange}
+        />
 
-      <div className="table-section">
-        <h2>Entities List</h2>
-        {entities.length === 0 ? (
-          <p>No entities found</p>
-        ) : (
-          <Table 
-            entities={entities} 
-            onDelete={handleDelete} 
-            onEdit={handleEdit}
+        <div className="table-section">
+          <div className="section-header">
+            <h2>Entities List</h2>
+            <SearchBar 
+              searchTerm={searchTerm}
+              onSearch={handleSearch}
+              onClear={handleClearSearch}
+              totalCount={entities.length}
+              filteredCount={filteredEntities.length}
+            />
+          </div>
+          
+          {entities.length === 0 ? (
+            <p>No entities found</p>
+          ) : filteredEntities.length === 0 ? (
+            <div className="no-results">
+              <p>No entities found matching your search.</p>
+              <button onClick={handleClearSearch} className="clear-search-btn">
+                Clear search
+              </button>
+            </div>
+          ) : (
+            <Table 
+              entities={filteredEntities} 
+              onDelete={handleDelete} 
+              onEdit={handleEdit}
+            />
+          )}
+        </div>
+
+        {isModalOpen && (
+          <EditModal
+            entity={editingEntity}
+            onUpdate={handleUpdate}
+            onClose={handleCloseModal}
           />
         )}
       </div>
-
-      {isModalOpen && (
-        <EditModal
-          entity={editingEntity}
-          onUpdate={handleUpdate}
-          onClose={handleCloseModal}
-        />
-      )}
     </div>
   );
 }
