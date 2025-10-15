@@ -1,150 +1,82 @@
 import React, { useState, useEffect } from 'react';
-import Table from './Table';
-import Form from './Form';
-import EditModal from './EditModal';
-import SearchBar from './SearchBar';
-import EntityAPI from './api/service';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import EntityManagement from './components/EntityManagement';
+import Login from './components/Login';
+import { authAPI } from './api/users';
 import './App.css';
 
 function App() {
-  const [entities, setEntities] = useState([]);
-  const [filteredEntities, setFilteredEntities] = useState([]);
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: ''
-  });
-  const [editingEntity, setEditingEntity] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [currentUser, setCurrentUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const allEntities = EntityAPI.all();
-    setEntities(allEntities);
-    setFilteredEntities(allEntities);
+    const savedUser = localStorage.getItem('currentUser');
+    if (savedUser) {
+      setCurrentUser(JSON.parse(savedUser));
+    }
+    setLoading(false);
   }, []);
 
-  useEffect(() => {
-    if (searchTerm.trim() === '') {
-      setFilteredEntities(entities);
-    } else {
-      const filtered = entities.filter(entity =>
-        entity.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        entity.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        entity.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        entity.id.toString().includes(searchTerm)
-      );
-      setFilteredEntities(filtered);
-    }
-  }, [searchTerm, entities]);
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prevState => ({
-      ...prevState,
-      [name]: value
-    }));
+  const handleLogin = async (username, password) => {
+    const user = await authAPI.login(username, password);
+    setCurrentUser(user);
+    localStorage.setItem('currentUser', JSON.stringify(user));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    if (!formData.firstName.trim() || !formData.lastName.trim() || !formData.email.trim()) {
-      alert('Please fill in all fields');
-      return;
-    }
-
-    EntityAPI.add(formData);
-    const allEntities = EntityAPI.all();
-    setEntities(allEntities);
-    setFormData({ firstName: '', lastName: '', email: '' });
+  const handleRegister = async (userData) => {
+    const user = await authAPI.register(userData);
+    return user;
   };
 
-  const handleDelete = (id) => {
-    EntityAPI.delete(id);
-    const allEntities = EntityAPI.all();
-    setEntities(allEntities);
+  const handleLogout = async () => {
+    await authAPI.logout();
+    setCurrentUser(null);
+    localStorage.removeItem('currentUser');
   };
 
-  const handleEdit = (id) => {
-    const entityToEdit = EntityAPI.get(id);
-    if (entityToEdit) {
-      setEditingEntity(entityToEdit);
-      setIsModalOpen(true);
-    }
-  };
-
-  const handleUpdate = (updatedEntity) => {
-    EntityAPI.edit(editingEntity.id, updatedEntity);
-    const allEntities = EntityAPI.all();
-    setEntities(allEntities);
-    setIsModalOpen(false);
-    setEditingEntity(null);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setEditingEntity(null);
-  };
-
-  const handleSearch = (term) => {
-    setSearchTerm(term);
-  };
-
-  const handleClearSearch = () => {
-    setSearchTerm('');
-  };
+  if (loading) {
+    return (
+      <div className="loading-screen">
+        <div className="loading-spinner large"></div>
+        <p>Loading...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="App">
-      <div className="app-content">
-        <h1>Entity Management</h1>
-        
-        <Form 
-          formData={formData}
-          onSubmit={handleSubmit}
-          onInputChange={handleInputChange}
-        />
-
-        <div className="table-section">
-          <div className="section-header">
-            <h2>Entities List</h2>
-            <SearchBar 
-              searchTerm={searchTerm}
-              onSearch={handleSearch}
-              onClear={handleClearSearch}
-              totalCount={entities.length}
-              filteredCount={filteredEntities.length}
-            />
-          </div>
-          
-          {entities.length === 0 ? (
-            <p>No entities found</p>
-          ) : filteredEntities.length === 0 ? (
-            <div className="no-results">
-              <p>No entities found matching your search.</p>
-              <button onClick={handleClearSearch} className="clear-search-btn">
-                Clear search
-              </button>
-            </div>
-          ) : (
-            <Table 
-              entities={filteredEntities} 
-              onDelete={handleDelete} 
-              onEdit={handleEdit}
-            />
-          )}
-        </div>
-
-        {isModalOpen && (
-          <EditModal
-            entity={editingEntity}
-            onUpdate={handleUpdate}
-            onClose={handleCloseModal}
+    <Router>
+      <div className="App">
+        <Routes>
+          <Route 
+            path="/login" 
+            element={
+              currentUser ? (
+                <Navigate to="/entities" replace />
+              ) : (
+                <Login onLogin={handleLogin} onRegister={handleRegister} />
+              )
+            } 
           />
-        )}
+          <Route 
+            path="/entities" 
+            element={
+              currentUser ? (
+                <EntityManagement 
+                  currentUser={currentUser} 
+                  onLogout={handleLogout} 
+                />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            } 
+          />
+          <Route 
+            path="/" 
+            element={<Navigate to={currentUser ? "/entities" : "/login"} replace />} 
+          />
+        </Routes>
       </div>
-    </div>
+    </Router>
   );
 }
 
