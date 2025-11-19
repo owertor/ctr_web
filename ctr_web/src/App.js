@@ -1,25 +1,43 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Provider, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import EntityManagement from './components/EntityManagement';
 import Login from './components/Login';
 import { authAPI } from './api/users';
+import { loginUser, logoutUser } from './redux/Actions/UserActions';
+import { fetchEntities } from './redux/Actions/EntityActions';
+import EntityAPI from './api/service';
+import store from './redux/store';
 import './App.css';
 
-function App() {
-  const [currentUser, setCurrentUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+const ThemeApplier = ({ children }) => {
+  const { theme } = useSelector(state => state.theme);
+  
+  useEffect(() => {
+    document.body.setAttribute('data-theme', theme);
+  }, [theme]);
+
+  return children;
+};
+
+function AppContent() {
+  const dispatch = useDispatch();
+  const { isAuthenticated, currentUser } = useSelector(state => state.user);
 
   useEffect(() => {
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser) {
-      setCurrentUser(JSON.parse(savedUser));
+      dispatch(loginUser(JSON.parse(savedUser)));
     }
-    setLoading(false);
-  }, []);
+    
+    const allEntities = EntityAPI.all();
+    dispatch(fetchEntities(allEntities));
+  }, [dispatch]);
 
   const handleLogin = async (username, password) => {
     const user = await authAPI.login(username, password);
-    setCurrentUser(user);
+    dispatch(loginUser(user));
     localStorage.setItem('currentUser', JSON.stringify(user));
   };
 
@@ -30,53 +48,54 @@ function App() {
 
   const handleLogout = async () => {
     await authAPI.logout();
-    setCurrentUser(null);
+    dispatch(logoutUser());
     localStorage.removeItem('currentUser');
   };
 
-  if (loading) {
-    return (
-      <div className="loading-screen">
-        <div className="loading-spinner large"></div>
-        <p>Loading...</p>
-      </div>
-    );
-  }
-
   return (
-    <Router>
-      <div className="App">
-        <Routes>
-          <Route 
-            path="/login" 
-            element={
-              currentUser ? (
-                <Navigate to="/entities" replace />
-              ) : (
-                <Login onLogin={handleLogin} onRegister={handleRegister} />
-              )
-            } 
-          />
-          <Route 
-            path="/entities" 
-            element={
-              currentUser ? (
-                <EntityManagement 
-                  currentUser={currentUser} 
-                  onLogout={handleLogout} 
-                />
-              ) : (
-                <Navigate to="/login" replace />
-              )
-            } 
-          />
-          <Route 
-            path="/" 
-            element={<Navigate to={currentUser ? "/entities" : "/login"} replace />} 
-          />
-        </Routes>
-      </div>
-    </Router>
+    <ThemeApplier>
+      <Router>
+        <div className="App">
+          <Routes>
+            <Route 
+              path="/login" 
+              element={
+                isAuthenticated ? (
+                  <Navigate to="/entities" replace />
+                ) : (
+                  <Login onLogin={handleLogin} onRegister={handleRegister} />
+                )
+              } 
+            />
+            <Route 
+              path="/entities" 
+              element={
+                isAuthenticated ? (
+                  <EntityManagement 
+                    currentUser={currentUser} 
+                    onLogout={handleLogout} 
+                  />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              } 
+            />
+            <Route 
+              path="/" 
+              element={<Navigate to={isAuthenticated ? "/entities" : "/login"} replace />} 
+            />
+          </Routes>
+        </div>
+      </Router>
+    </ThemeApplier>
+  );
+}
+
+function App() {
+  return (
+    <Provider store={store}>
+      <AppContent />
+    </Provider>
   );
 }
 

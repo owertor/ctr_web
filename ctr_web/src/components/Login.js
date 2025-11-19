@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Registration from './Registration';
+import ThemeToggle from './ThemeToggle';
 
 const Login = ({ onLogin, onRegister }) => {
   const [formData, setFormData] = useState({
@@ -66,8 +67,12 @@ const Login = ({ onLogin, onRegister }) => {
     <div className="login-container">
       <div className="login-card">
         <div className="login-header">
-          <h1>📁Entity Management System</h1>
+          <h1>📁 Entity Management System</h1>
           <p>Please sign in to continue</p>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+          <ThemeToggle />
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">

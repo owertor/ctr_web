@@ -1,13 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import Table from './Table';
 import Form from './Form';
 import EditModal from './EditModal';
 import SearchBar from './SearchBar';
+import ThemeToggle from './ThemeToggle';
 import EntityAPI from '../api/service';
+import { 
+  fetchEntities, 
+  addEntity, 
+  updateEntity, 
+  deleteEntity, 
+  setSearchTerm 
+} from '../redux/Actions/EntityActions'; 
 
 const EntityManagement = ({ currentUser, onLogout }) => {
-  const [entities, setEntities] = useState([]);
-  const [filteredEntities, setFilteredEntities] = useState([]);
+  const dispatch = useDispatch();
+  const { entities, filteredEntities, searchTerm } = useSelector(state => state.entities);
+  
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -15,27 +25,11 @@ const EntityManagement = ({ currentUser, onLogout }) => {
   });
   const [editingEntity, setEditingEntity] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const allEntities = EntityAPI.all();
-    setEntities(allEntities);
-    setFilteredEntities(allEntities);
-  }, []);
-
-  useEffect(() => {
-    if (searchTerm.trim() === '') {
-      setFilteredEntities(entities);
-    } else {
-      const filtered = entities.filter(entity =>
-        entity.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        entity.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        entity.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        entity.id.toString().includes(searchTerm)
-      );
-      setFilteredEntities(filtered);
-    }
-  }, [searchTerm, entities]);
+    dispatch(fetchEntities(allEntities));
+  }, [dispatch]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -53,16 +47,14 @@ const EntityManagement = ({ currentUser, onLogout }) => {
       return;
     }
 
-    EntityAPI.add(formData);
-    const allEntities = EntityAPI.all();
-    setEntities(allEntities);
+    const newEntity = EntityAPI.add(formData);
+    dispatch(addEntity(newEntity));
     setFormData({ firstName: '', lastName: '', email: '' });
   };
 
   const handleDelete = (id) => {
     EntityAPI.delete(id);
-    const allEntities = EntityAPI.all();
-    setEntities(allEntities);
+    dispatch(deleteEntity(id));
   };
 
   const handleEdit = (id) => {
@@ -75,8 +67,7 @@ const EntityManagement = ({ currentUser, onLogout }) => {
 
   const handleUpdate = (updatedEntity) => {
     EntityAPI.edit(editingEntity.id, updatedEntity);
-    const allEntities = EntityAPI.all();
-    setEntities(allEntities);
+    dispatch(updateEntity(editingEntity.id, updatedEntity));
     setIsModalOpen(false);
     setEditingEntity(null);
   };
@@ -87,22 +78,25 @@ const EntityManagement = ({ currentUser, onLogout }) => {
   };
 
   const handleSearch = (term) => {
-    setSearchTerm(term);
+    dispatch(setSearchTerm(term));
   };
 
   const handleClearSearch = () => {
-    setSearchTerm('');
+    dispatch(setSearchTerm(''));
   };
 
   return (
     <div className="app-content">
       <div className="header-with-user">
         <h1><span>Entity</span> Management</h1>
-        <div className="user-info">
-          <span>Welcome, {currentUser.firstName}!</span>
-          <button onClick={onLogout} className="logout-btn">
-            Logout
-          </button>
+        <div className="header-controls">
+          <ThemeToggle />
+          <div className="user-info">
+            <span>Welcome, {currentUser.firstName}!</span>
+            <button onClick={onLogout} className="logout-btn">
+              Logout
+            </button>
+          </div>
         </div>
       </div>
       

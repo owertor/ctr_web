@@ -1,3 +1,50 @@
+/* CSS Variables for Themes */
+:root {
+  /* Light Theme (your original styles as variables) */
+  --bg-primary: #f8f9fa;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f8f9fa;
+  --text-primary: #333;
+  --text-secondary: #333;
+  --border-color: #ecf0f1;
+  --border-light: #bdc3c7;
+  --shadow: 0 1px 3px rgba(0,0,0,0.1);
+  --shadow-hover: 0 2px 5px rgba(0,0,0,0.1);
+  --primary-color: #3498db;
+  --primary-hover: #2980b9;
+  --success-color: #27ae60;
+  --success-hover: #219653;
+  --danger-color: #e74c3c;
+  --danger-hover: #c0392b;
+  --warning-color: #95a5a6;
+  --warning-hover: #7f8c8d;
+  --table-header: #34495e;
+  --modal-overlay: rgba(0,0,0,0.5);
+}
+
+[data-theme="dark"] {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --bg-tertiary: #3d3d3d;
+  --text-primary: #ffffff;
+  --text-secondary: #cccccc;
+  --border-color: #404040;
+  --border-light: #555555;
+  --shadow: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-hover: 0 2px 5px rgba(0,0,0,0.4);
+  --primary-color: #4a9fe3;
+  --primary-hover: #3d8fd6;
+  --success-color: #2ecc71;
+  --success-hover: #27ae60;
+  --danger-color: #e74c3c;
+  --danger-hover: #c0392b;
+  --warning-color: #7f8c8d;
+  --warning-hover: #95a5a6;
+  --table-header: #2d3748;
+  --modal-overlay: rgba(0,0,0,0.7);
+}
+
+/* Your original styles with CSS variables */
 * {
   margin: 0;
   padding: 0;
@@ -6,9 +53,10 @@
 
 body {
   font-family: Arial, sans-serif;
-  background: #f8f9fa;
-  color: #333;
+  background: var(--bg-primary);
+  color: var(--text-primary);
   line-height: 1.6;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .App {
@@ -18,30 +66,32 @@ body {
 }
 
 .app-content {
-  background: white;
+  background: var(--bg-secondary);
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
 }
 
 h1 {
   text-align: center;
   margin-bottom: 30px;
-  color: #2c3e50;
+  color: var(--text-primary);
 }
 
 h2 {
   margin-bottom: 20px;
-  color: #34495e;
+  color: var(--text-primary);
   padding-bottom: 10px;
-  border-bottom: 2px solid #ecf0f1;
+  border-bottom: 2px solid var(--border-color);
 }
 
 .form-section {
   margin-bottom: 30px;
   padding: 20px;
-  background: #f8f9fa;
+  background: var(--bg-tertiary);
   border-radius: 6px;
+  transition: all 0.3s ease;
 }
 
 .form-section form {
@@ -52,23 +102,32 @@ h2 {
 
 .form-section input {
   padding: 10px;
-  border: 1px solid #bdc3c7;
+  border: 1px solid var(--border-light);
   border-radius: 4px;
   flex: 1;
   min-width: 150px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+}
+
+.form-section input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.7;
 }
 
 .form-section button {
   padding: 10px 20px;
-  background: #3498db;
+  background: var(--primary-color);
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .form-section button:hover {
-  background: #2980b9;
+  background: var(--primary-hover);
 }
 
 .section-header {
@@ -82,59 +141,67 @@ h2 {
 
 .search-input {
   padding: 8px 12px;
-  border: 1px solid #bdc3c7;
+  border: 1px solid var(--border-light);
   border-radius: 4px;
   width: 250px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: all 0.3s ease;
 }
 
 .entities-table {
   width: 100%;
   border-collapse: collapse;
-  background: white;
+  background: var(--bg-secondary);
+  transition: all 0.3s ease;
 }
 
 .entities-table th,
 .entities-table td {
   padding: 12px;
   text-align: left;
-  border-bottom: 1px solid #ecf0f1;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  transition: all 0.3s ease;
 }
 
 .entities-table th {
-  background: #34495e;
+  background: var(--table-header);
   color: white;
   font-weight: bold;
 }
 
 .entities-table tr:hover {
-  background: #f8f9fa;
+  background: var(--bg-tertiary);
 }
 
 .edit-btn {
   padding: 6px 12px;
-  background: #27ae60;
+  background: var(--success-color);
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   margin-right: 5px;
+  transition: all 0.3s ease;
 }
 
 .edit-btn:hover {
-  background: #219653;
+  background: var(--success-hover);
 }
 
 .delete-btn {
   padding: 6px 12px;
-  background: #e74c3c;
+  background: var(--danger-color);
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .delete-btn:hover {
-  background: #c0392b;
+  background: var(--danger-hover);
 }
 
 .modal-overlay {
@@ -143,7 +210,7 @@ h2 {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0,0,0,0.5);
+  background: var(--modal-overlay);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -151,11 +218,12 @@ h2 {
 }
 
 .modal-content {
-  background: white;
+  background: var(--bg-secondary);
   padding: 20px;
   border-radius: 6px;
   width: 90%;
   max-width: 500px;
+  transition: all 0.3s ease;
 }
 
 .modal-header {
@@ -164,7 +232,7 @@ h2 {
   align-items: center;
   margin-bottom: 20px;
   padding-bottom: 10px;
-  border-bottom: 1px solid #ecf0f1;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .close-btn {
@@ -172,7 +240,12 @@ h2 {
   border: none;
   font-size: 20px;
   cursor: pointer;
-  color: #7f8c8d;
+  color: var(--text-secondary);
+  transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+  color: var(--text-primary);
 }
 
 .form-group {
@@ -183,13 +256,17 @@ h2 {
   display: block;
   margin-bottom: 5px;
   font-weight: bold;
+  color: var(--text-primary);
 }
 
 .form-group input {
   width: 100%;
   padding: 8px;
-  border: 1px solid #bdc3c7;
+  border: 1px solid var(--border-light);
   border-radius: 4px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: all 0.3s ease;
 }
 
 .modal-actions {
@@ -200,12 +277,17 @@ h2 {
 }
 
 .update-btn {
-  padding: 8px 16px;
-  background: #27ae60;
+  padding: 8px 90px;
+  background: var(--success-color);
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.update-btn:hover {
+  background: var(--success-hover);
 }
 
 .registration-actions {
@@ -214,37 +296,39 @@ h2 {
   gap: 15px;
   margin-top: 25px;
   padding-top: 20px;
-  border-top: 1px solid #ecf0f1;
+  border-top: 1px solid var(--border-color);
 }
 
 .register-btn {
   padding: 12px 24px;
-  background: #27ae60;
+  background: var(--success-color);
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-weight: bold;
   flex: 2;
+  transition: all 0.3s ease;
 }
 
 .register-btn:hover:not(:disabled) {
-  background: #219653;
+  background: var(--success-hover);
 }
 
 .cancel-btn {
   padding: 12px 24px;
-  background: #95a5a6;
+  background: var(--warning-color);
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-weight: bold;
   flex: 1;
+  transition: all 0.3s ease;
 }
 
 .cancel-btn:hover:not(:disabled) {
-  background: #7f8c8d;
+  background: var(--warning-hover);
 }
 
 .login-container {
@@ -252,17 +336,19 @@ h2 {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #ecf0f1;
+  background: var(--bg-primary);
   padding: 20px;
+  transition: all 0.3s ease;
 }
 
 .login-card {
-  background: white;
+  background: var(--bg-secondary);
   padding: 30px;
   border-radius: 6px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: var(--shadow-hover);
   width: 100%;
   max-width: 400px;
+  transition: all 0.3s ease;
 }
 
 .login-header {
@@ -274,6 +360,10 @@ h2 {
   margin-bottom: 10px;
 }
 
+.login-header p {
+  color: var(--text-secondary);
+}
+
 .login-form .form-group {
   margin-bottom: 15px;
 }
@@ -282,56 +372,62 @@ h2 {
   display: block;
   margin-bottom: 5px;
   font-weight: bold;
+  color: var(--text-primary);
 }
 
 .login-form input {
   width: 100%;
   padding: 10px;
-  border: 1px solid #bdc3c7;
+  border: 1px solid var(--border-light);
   border-radius: 4px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: all 0.3s ease;
 }
 
 .login-btn {
   width: 100%;
   padding: 12px;
-  background: #3498db;
+  background: var(--primary-color);
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   margin-top: 10px;
+  transition: all 0.3s ease;
 }
 
 .login-btn:hover {
-  background: #2980b9;
+  background: var(--primary-hover);
 }
 
 .login-footer {
   margin-top: 25px;
   padding-top: 20px;
-  border-top: 1px solid #ecf0f1;
+  border-top: 1px solid var(--border-color);
   text-align: center;
 }
 
 .login-footer p {
   display: inline;
   margin: 0;
-  color: #333;
+  color: var(--text-secondary);
 }
 
 .create-account-link {
   background: none;
   border: none;
-  color: #3498db;
+  color: var(--primary-color);
   cursor: pointer;
   text-decoration: underline;
   font-weight: bold;
   padding: 0;
   margin-left: 5px;
+  transition: all 0.3s ease;
 }
 
 .create-account-link:hover {
-  color: #2980b9;
+  color: var(--primary-hover);
 }
 
 .header-with-user {
@@ -347,19 +443,25 @@ h2 {
   display: flex;
   align-items: center;
   gap: 10px;
+  color: var(--text-primary);
 }
 
 .logout-btn {
   padding: 6px 12px;
-  background: #e74c3c;
+  background: var(--danger-color);
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background: var(--danger-hover);
 }
 
 .error-message {
-  background: #e74c3c;
+  background: var(--danger-color);
   color: white;
   padding: 10px;
   border-radius: 4px;
@@ -367,6 +469,31 @@ h2 {
   text-align: center;
 }
 
+/* Theme Toggle Button */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-light);
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.theme-toggle:hover {
+  background: var(--bg-tertiary);
+  transform: translateY(-1px);
+}
+
+.theme-icon {
+  font-size: 16px;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
   .App {
     padding: 15px;
@@ -392,5 +519,10 @@ h2 {
   
   .modal-actions {
     flex-direction: column;
+  }
+  
+  .update-btn {
+    padding: 8px 20px;
+    width: 100%;
   }
 }
