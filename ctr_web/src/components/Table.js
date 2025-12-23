@@ -1,6 +1,6 @@
 import React from "react";
 
-const Table = ({ entities, onDelete, onEdit }) => {
+const Table = ({ entities, onDelete, onEdit, deletingId }) => {
   if (entities.length === 0) {
     return null;
   }
@@ -19,24 +19,35 @@ const Table = ({ entities, onDelete, onEdit }) => {
         </thead>
         <tbody>
           {entities.map((entity) => {
+            const isDeleting = deletingId === entity.id;
+            
             return (
-              <tr key={entity.id}>
+              <tr key={entity.id} className={isDeleting ? 'deleting' : ''}>
                 <td>{entity.id}</td>
                 <td>{entity.firstName}</td>
                 <td>{entity.lastName}</td>
                 <td>{entity.email}</td>
                 <td>
-                  <button 
-                    onClick={() => onEdit(entity.id)}
+                  <button
+                    onClick={() => onEdit(entity)}
                     className="edit-btn"
+                    disabled={isDeleting}
                   >
                     Edit
                   </button>
-                  <button 
+                  <button
                     onClick={() => onDelete(entity.id)}
                     className="delete-btn"
+                    disabled={isDeleting}
                   >
-                    Delete
+                    {isDeleting ? (
+                      <>
+                        <span className="btn-spinner"></span>
+                        Deleting...
+                      </>
+                    ) : (
+                      'Delete'
+                    )}
                   </button>
                 </td>
               </tr>

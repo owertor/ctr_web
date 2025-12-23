@@ -1,149 +1,207 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import Table from './Table';
-import Form from './Form';
-import EditModal from './EditModal';
-import SearchBar from './SearchBar';
-import ThemeToggle from './ThemeToggle';
-import EntityAPI from '../api/service';
-import { 
-  fetchEntities, 
-  addEntity, 
-  updateEntity, 
-  deleteEntity, 
-  setSearchTerm 
-} from '../redux/Actions/EntityActions'; 
+import {
+  Container,
+  Box,
+  Typography,
+  Button,
+  AppBar,
+  Toolbar,
+  IconButton,
+  Snackbar,
+  Alert
+} from '@mui/material';
+import {
+  Add as AddIcon,
+  Logout as LogoutIcon,
+  Brightness4 as DarkIcon,
+  Brightness7 as LightIcon
+} from '@mui/icons-material';
+import EnhancedTable from './EnhancedTable/EnhancedTable';
+import EntityForm from './EntityForm';
+import {
+  fetchEntities,
+  addEntity,
+  updateEntity,
+  deleteEntity,
+  deleteManyEntities,
+  clearEntityError
+} from '../redux/Actions/EntityActions';
+import { setTheme } from '../redux/Actions/ThemeActions';
 
 const EntityManagement = ({ currentUser, onLogout }) => {
   const dispatch = useDispatch();
-  const { entities, filteredEntities, searchTerm } = useSelector(state => state.entities);
   
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: ''
-  });
-  const [editingEntity, setEditingEntity] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // Redux state
+  const { entities, loading, adding, updating, deletingIds, error } = useSelector(
+    state => state.entities
+  );
+  const { theme } = useSelector(state => state.theme);
 
+  // Local state
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingEntity, setEditingEntity] = useState(null);
+  const [formError, setFormError] = useState('');
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+
+  // Загрузка данных
   useEffect(() => {
-    const allEntities = EntityAPI.all();
-    dispatch(fetchEntities(allEntities));
+    dispatch(fetchEntities());
   }, [dispatch]);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prevState => ({
-      ...prevState,
-      [name]: value
-    }));
+  // Показ ошибок
+  useEffect(() => {
+    if (error) {
+      setSnackbar({ open: true, message: error, severity: 'error' });
+      dispatch(clearEntityError());
+    }
+  }, [error, dispatch]);
+
+  // Handlers
+  const handleOpenForm = () => {
+    setEditingEntity(null);
+    setFormError('');
+    setIsFormOpen(true);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleCloseForm = () => {
+    setIsFormOpen(false);
+    setEditingEntity(null);
+    setFormError('');
+  };
+
+  const handleEdit = (entity) => {
+    setEditingEntity(entity);
+    setFormError('');
+    setIsFormOpen(true);
+  };
+
+  const handleSubmit = async (formData) => {
+    let result;
     
-    if (!formData.firstName.trim() || !formData.lastName.trim() || !formData.email.trim()) {
-      alert('Please fill in all fields');
-      return;
+    if (editingEntity) {
+      result = await dispatch(updateEntity(editingEntity.id, formData));
+    } else {
+      result = await dispatch(addEntity(formData));
     }
 
-    const newEntity = EntityAPI.add(formData);
-    dispatch(addEntity(newEntity));
-    setFormData({ firstName: '', lastName: '', email: '' });
-  };
-
-  const handleDelete = (id) => {
-    EntityAPI.delete(id);
-    dispatch(deleteEntity(id));
-  };
-
-  const handleEdit = (id) => {
-    const entityToEdit = EntityAPI.get(id);
-    if (entityToEdit) {
-      setEditingEntity(entityToEdit);
-      setIsModalOpen(true);
+    if (result.success) {
+      handleCloseForm();
+      setSnackbar({
+        open: true,
+        message: editingEntity ? 'Employee updated successfully' : 'Employee added successfully',
+        severity: 'success'
+      });
+    } else {
+      setFormError(result.error);
     }
   };
 
-  const handleUpdate = (updatedEntity) => {
-    EntityAPI.edit(editingEntity.id, updatedEntity);
-    dispatch(updateEntity(editingEntity.id, updatedEntity));
-    setIsModalOpen(false);
-    setEditingEntity(null);
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this employee?')) {
+      const result = await dispatch(deleteEntity(id));
+      if (result.success) {
+        setSnackbar({ open: true, message: 'Employee deleted successfully', severity: 'success' });
+      }
+    }
   };
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setEditingEntity(null);
+  const handleDeleteMany = async (ids) => {
+    const result = await dispatch(deleteManyEntities(ids));
+    if (result.success) {
+      setSnackbar({ 
+        open: true, 
+        message: `${ids.length} employees deleted successfully`, 
+        severity: 'success' 
+      });
+    }
   };
 
-  const handleSearch = (term) => {
-    dispatch(setSearchTerm(term));
+  const handleToggleTheme = () => {
+    dispatch(setTheme(theme === 'light' ? 'dark' : 'light'));
   };
 
-  const handleClearSearch = () => {
-    dispatch(setSearchTerm(''));
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
   };
 
   return (
-    <div className="app-content">
-      <div className="header-with-user">
-        <h1><span>Entity</span> Management</h1>
-        <div className="header-controls">
-          <ThemeToggle />
-          <div className="user-info">
-            <span>Welcome, {currentUser.firstName}!</span>
-            <button onClick={onLogout} className="logout-btn">
-              Logout
-            </button>
-          </div>
-        </div>
-      </div>
-      
-      <Form 
-        formData={formData}
-        onSubmit={handleSubmit}
-        onInputChange={handleInputChange}
-      />
+    <Box sx={{ flexGrow: 1 }}>
+      {/* Header */}
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            📁 Entity Management
+          </Typography>
+          
+          <Typography sx={{ mr: 2 }}>
+            Welcome, {currentUser.firstName}!
+          </Typography>
+          
+          <IconButton color="inherit" onClick={handleToggleTheme}>
+            {theme === 'light' ? <DarkIcon /> : <LightIcon />}
+          </IconButton>
+          
+          <IconButton color="inherit" onClick={onLogout}>
+            <LogoutIcon />
+          </IconButton>
+        </Toolbar>
+      </AppBar>
 
-      <div className="table-section">
-        <div className="section-header">
-          <h2>Entities List</h2>
-          <SearchBar 
-            searchTerm={searchTerm}
-            onSearch={handleSearch}
-            onClear={handleClearSearch}
-            totalCount={entities.length}
-            filteredCount={filteredEntities.length}
-          />
-        </div>
-        
-        {entities.length === 0 ? (
-          <p>No entities found</p>
-        ) : filteredEntities.length === 0 ? (
-          <div className="no-results">
-            <p>No entities found matching your search.</p>
-            <button onClick={handleClearSearch} className="clear-search-btn">
-              Clear search
-            </button>
-          </div>
-        ) : (
-          <Table 
-            entities={filteredEntities} 
-            onDelete={handleDelete} 
-            onEdit={handleEdit}
-          />
-        )}
-      </div>
+      {/* Content */}
+      <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+        {/* Action buttons */}
+        <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="h4" component="h1">
+            Employees
+          </Typography>
+          
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={handleOpenForm}
+          >
+            Add Employee
+          </Button>
+        </Box>
 
-      {isModalOpen && (
-        <EditModal
-          entity={editingEntity}
-          onUpdate={handleUpdate}
-          onClose={handleCloseModal}
+        {/* Table */}
+        <EnhancedTable
+          entities={entities}
+          loading={loading}
+          deletingIds={deletingIds}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onDeleteMany={handleDeleteMany}
         />
-      )}
-    </div>
+
+        {/* Form Dialog */}
+        <EntityForm
+          open={isFormOpen}
+          onClose={handleCloseForm}
+          onSubmit={handleSubmit}
+          entity={editingEntity}
+          loading={adding || updating}
+          error={formError}
+        />
+
+        {/* Snackbar for notifications */}
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={4000}
+          onClose={handleCloseSnackbar}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        >
+          <Alert 
+            onClose={handleCloseSnackbar} 
+            severity={snackbar.severity}
+            variant="filled"
+          >
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
+      </Container>
+    </Box>
   );
 };
 

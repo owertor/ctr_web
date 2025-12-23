@@ -1,9 +1,22 @@
 import React from "react";
 
-const Form = ({ formData, onSubmit, onInputChange, editingId, onCancelEdit }) => {
+const Form = ({ 
+  formData, 
+  onSubmit, 
+  onInputChange, 
+  loading = false, 
+  error = '' 
+}) => {
   return (
     <div className="form-section">
-      <h2>{editingId ? 'Edit Entity' : 'Add New Entity'}</h2>
+      <h2>Add New Entity</h2>
+      
+      {error && (
+        <div className="form-error">
+          {error}
+        </div>
+      )}
+      
       <form onSubmit={onSubmit}>
         <input
           type="text"
@@ -11,6 +24,7 @@ const Form = ({ formData, onSubmit, onInputChange, editingId, onCancelEdit }) =>
           placeholder="First Name"
           value={formData.firstName}
           onChange={onInputChange}
+          disabled={loading}
         />
         <input
           type="text"
@@ -18,6 +32,7 @@ const Form = ({ formData, onSubmit, onInputChange, editingId, onCancelEdit }) =>
           placeholder="Last Name"
           value={formData.lastName}
           onChange={onInputChange}
+          disabled={loading}
         />
         <input
           type="email"
@@ -25,15 +40,18 @@ const Form = ({ formData, onSubmit, onInputChange, editingId, onCancelEdit }) =>
           placeholder="Email"
           value={formData.email}
           onChange={onInputChange}
+          disabled={loading}
         />
-        <button type="submit">
-          {editingId ? 'Update' : 'Add'}
+        <button type="submit" disabled={loading}>
+          {loading ? (
+            <>
+              <span className="btn-spinner"></span>
+              Adding...
+            </>
+          ) : (
+            'Add'
+          )}
         </button>
-        {editingId && (
-          <button type="button" onClick={onCancelEdit} className="cancel-btn">
-            Cancel
-          </button>
-        )}
       </form>
     </div>
   );

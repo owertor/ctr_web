@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 
-const EditModal = ({ entity, onUpdate, onClose }) => {
+const EditModal = ({ entity, onUpdate, onClose, loading = false }) => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: ''
   });
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (entity) {
@@ -23,13 +24,14 @@ const EditModal = ({ entity, onUpdate, onClose }) => {
       ...prevState,
       [name]: value
     }));
+    setError('');
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     if (!formData.firstName.trim() || !formData.lastName.trim() || !formData.email.trim()) {
-      alert('Please fill in all fields');
+      setError('Please fill in all fields');
       return;
     }
 
@@ -37,7 +39,7 @@ const EditModal = ({ entity, onUpdate, onClose }) => {
   };
 
   const handleOverlayClick = (e) => {
-    if (e.target === e.currentTarget) {
+    if (e.target === e.currentTarget && !loading) {
       onClose();
     }
   };
@@ -47,8 +49,21 @@ const EditModal = ({ entity, onUpdate, onClose }) => {
       <div className="modal-content">
         <div className="modal-header">
           <h2>Edit Entity</h2>
-          <button className="close-btn" onClick={onClose}>×</button>
+          <button 
+            className="close-btn" 
+            onClick={onClose}
+            disabled={loading}
+          >
+            ×
+          </button>
         </div>
+        
+        {error && (
+          <div className="form-error">
+            {error}
+          </div>
+        )}
+        
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="edit-firstName">First Name:</label>
@@ -58,6 +73,7 @@ const EditModal = ({ entity, onUpdate, onClose }) => {
               name="firstName"
               value={formData.firstName}
               onChange={handleInputChange}
+              disabled={loading}
             />
           </div>
           <div className="form-group">
@@ -68,6 +84,7 @@ const EditModal = ({ entity, onUpdate, onClose }) => {
               name="lastName"
               value={formData.lastName}
               onChange={handleInputChange}
+              disabled={loading}
             />
           </div>
           <div className="form-group">
@@ -78,14 +95,31 @@ const EditModal = ({ entity, onUpdate, onClose }) => {
               name="email"
               value={formData.email}
               onChange={handleInputChange}
+              disabled={loading}
             />
           </div>
           <div className="modal-actions">
-            <button type="button" onClick={onClose} className="cancel-btn">
+            <button 
+              type="button" 
+              onClick={onClose} 
+              className="cancel-btn"
+              disabled={loading}
+            >
               Cancel
             </button>
-            <button type="submit" className="update-btn">
-              Update
+            <button 
+              type="submit" 
+              className="update-btn"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <span className="btn-spinner"></span>
+                  Updating...
+                </>
+              ) : (
+                'Update'
+              )}
             </button>
           </div>
         </form>
